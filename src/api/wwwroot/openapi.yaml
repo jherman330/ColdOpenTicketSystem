@@ -1,0 +1,41 @@
+openapi: 3.0.0
+info:
+  description: Minimal scaffold API
+  version: 1.0.0
+  title: Backend API
+  contact:
+    email: azdevteam@microsoft.com
+
+paths:
+  /:
+    get:
+      operationId: GetRoot
+      summary: Root endpoint
+      responses:
+        200:
+          description: OK
+  /health:
+    get:
+      operationId: GetHealth
+      summary: Health check
+      responses:
+        200:
+          description: OK
+  /health/live:
+    get:
+      operationId: GetHealthLive
+      summary: Liveness probe (no external dependencies)
+      responses:
+        200:
+          description: Healthy
+        503:
+          description: Unhealthy
+  /health/ready:
+    get:
+      operationId: GetHealthReady
+      summary: Readiness probe (Cosmos DB and Redis when configured)
+      responses:
+        200:
+          description: All dependencies healthy
+        503:
+          description: One or more dependencies unhealthy
