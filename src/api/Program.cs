@@ -17,11 +17,14 @@
 // =============================================================================
 
 using Azure.Identity;
+using Microsoft.Azure.Cosmos;
 using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using Todo.Api.Domain.Entities;
+using Todo.Api.Domain.Repositories;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Todo.Api.Infrastructure.Configuration;
+using Todo.Api.Infrastructure.Data;
 using Todo.Api.Infrastructure.Cors;
 using Todo.Api.Infrastructure.HealthChecks;
 using Todo.Api.Infrastructure.RateLimiting;
@@ -68,6 +71,13 @@ if (!string.IsNullOrEmpty(builder.Configuration["AZURE_COSMOS_ENDPOINT"]))
     var db = builder.Configuration["AZURE_COSMOS_DATABASE_NAME"] ?? "App";
     var container = builder.Configuration["AZURE_COSMOS_CONTAINER_NAME"] ?? "Items";
     builder.Services.AddCosmosDbRepository<Item>(db, container, partitionKeyPath: "/id");
+
+    var ticketContainer = builder.Configuration["AZURE_COSMOS_TICKET_CONTAINER_NAME"] ?? "ticket";
+    builder.Services.AddSingleton<ITicketRepository>(sp => new TicketRepository(
+        sp.GetRequiredService<CosmosClient>(),
+        db,
+        ticketContainer,
+        sp.GetRequiredService<ILogger<TicketRepository>>()));
 }
 // AC-FOUNDATION-008: FluentValidation — DI, auto-validation before controllers, 400 envelope with field errors
 builder.Services.AddFluentValidationPipeline();
